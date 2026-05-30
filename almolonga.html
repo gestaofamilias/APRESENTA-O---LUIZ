@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Almolonga — A História de Transformação de uma Cidade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;600;700;800;900&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<style>
+/* ============================================================ RESET & VARS */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --p:#1E4D9B;--s:#F28C38;--bg:#04152D;--tx:#FFFFFF;--dt:#D6D6D6;
+  --gB:rgba(30,77,155,.55);--gO:rgba(242,140,56,.55);
+  --glass:rgba(255,255,255,.05);--gb:rgba(255,255,255,.1);
+  --fM:'Montserrat',sans-serif;--fD:'Playfair Display',serif;
+}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-family:var(--fM);}
+
+/* ============================================================ LOADER */
+#loader{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;}
+.ld-title{font-family:var(--fD);font-size:52px;font-weight:900;background:linear-gradient(135deg,var(--p),var(--s));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.ld-bar{width:220px;height:2px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;}
+.ld-fill{height:100%;background:linear-gradient(90deg,var(--p),var(--s));animation:ldFill 1.6s cubic-bezier(.4,0,.2,1) forwards;}
+@keyframes ldFill{from{width:0}to{width:100%}}
+.ld-txt{font-size:10px;letter-spacing:4px;color:var(--dt);text-transform:uppercase;}
+
+/* ============================================================ PARTICLES */
+#pCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+
+/* ============================================================ PROGRESS BAR */
+#pBar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--p),var(--s));z-index:300;transition:width .6s cubic-bezier(.25,1,.5,1);box-shadow:0 0 10px var(--gB);}
+
+/* ============================================================ KERIGMA LOGO */
+.klg{position:fixed;top:22px;right:28px;z-index:200;display:flex;align-items:center;gap:8px;opacity:.65;transition:opacity .3s;cursor:default;}
+.klg:hover{opacity:1;}
+.klg-icon{width:30px;height:30px;background:linear-gradient(135deg,var(--p),var(--s));border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;color:#fff;box-shadow:0 0 12px var(--gB);}
+.klg-txt{font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--dt);}
+
+/* ============================================================ NAVIGATION */
+.nav{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:14px;z-index:200;}
+.nb{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);backdrop-filter:blur(8px);color:#fff;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s;user-select:none;-webkit-user-select:none;}
+.nb:hover{background:rgba(30,77,155,.4);border-color:var(--p);box-shadow:0 0 20px var(--gB);transform:scale(1.1);}
+.nc{font-size:11px;font-weight:600;letter-spacing:2px;color:var(--dt);min-width:56px;text-align:center;}
+
+/* ============================================================ DOTS */
+#dots{position:fixed;bottom:32px;right:32px;display:flex;flex-direction:column;gap:7px;z-index:200;}
+.dot{width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,.2);cursor:pointer;transition:all .3s;}
+.dot.on{background:var(--s);box-shadow:0 0 8px var(--gO);height:18px;}
+
+/* ============================================================ SLIDES */
+.sWrap{position:fixed;inset:0;z-index:1;}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;opacity:0;pointer-events:none;overflow:hidden;}
+.slide.on{opacity:1;pointer-events:all;}
+
+/* Backgrounds */
+.bg{position:absolute;inset:0;z-index:0;}
+.bg1{background:radial-gradient(ellipse at 20% 50%,rgba(30,77,155,.28) 0%,transparent 60%),radial-gradient(ellipse at 80% 50%,rgba(242,140,56,.14) 0%,transparent 60%),var(--bg);}
+.bg2{background:radial-gradient(ellipse at 50% 0%,rgba(30,77,155,.38) 0%,transparent 70%),radial-gradient(ellipse at 50% 100%,rgba(242,140,56,.18) 0%,transparent 60%),var(--bg);}
+.bgDark{background:radial-gradient(ellipse at 30% 30%,rgba(10,20,50,.8) 0%,transparent 70%),linear-gradient(135deg,#020a18 0%,#04152D 100%);}
+.bgGreen{background:radial-gradient(ellipse at 50% 100%,rgba(30,155,77,.18) 0%,transparent 60%),radial-gradient(ellipse at 20% 20%,rgba(30,77,155,.28) 0%,transparent 50%),var(--bg);}
+.grid{position:absolute;inset:0;background-image:linear-gradient(rgba(30,77,155,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(30,77,155,.04) 1px,transparent 1px);background-size:60px 60px;z-index:1;}
+.orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:1;}
+.orbB{background:rgba(30,77,155,.38);width:400px;height:400px;}
+.orbO{background:rgba(242,140,56,.22);width:300px;height:300px;}
+
+/* Animated light lines */
+.ll{position:absolute;width:2px;height:100%;background:linear-gradient(to bottom,transparent,var(--p),transparent);opacity:.25;animation:llA 7s ease-in-out infinite;}
+.ll:nth-child(1){left:18%;animation-delay:0s;} .ll:nth-child(2){left:55%;animation-delay:2.5s;} .ll:nth-child(3){left:82%;animation-delay:5s;}
+@keyframes llA{0%,100%{opacity:.05;transform:scaleY(.2) translateY(-300px)}50%{opacity:.35;transform:scaleY(1) translateY(0)}}
+
+/* Stars */
+.star{position:absolute;border-radius:50%;background:#fff;animation:tw var(--d,3s) ease-in-out infinite var(--dl,0s);}
+@keyframes tw{0%,100%{opacity:.15;transform:scale(1)}50%{opacity:1;transform:scale(1.6)}}
+
+/* Floating */
+@keyframes fl{0%,100%{transform:translateY(0) rotate(0deg)}33%{transform:translateY(-18px) rotate(2deg)}66%{transform:translateY(-8px) rotate(-2deg)}}
+.fl{animation:fl 6s ease-in-out infinite;}
+
+/* Section label */
+.slbl{position:absolute;top:26px;left:36px;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,.18);font-weight:600;z-index:20;}
+
+/* ============================================================ COMMON CONTENT */
+.sc{position:relative;z-index:10;width:100%;max-width:1200px;padding:32px 52px;}
+.tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--s);background:rgba(242,140,56,.1);border:1px solid rgba(242,140,56,.3);padding:5px 14px;border-radius:20px;margin-bottom:20px;}
+.htag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:rgba(255,100,100,.9);background:rgba(255,100,100,.1);border:1px solid rgba(255,100,100,.3);padding:5px 14px;border-radius:20px;margin-bottom:20px;}
+h1.big{font-family:var(--fD);font-size:clamp(40px,6vw,88px);font-weight:900;line-height:1.05;background:linear-gradient(135deg,#fff 0%,#cfe0ff 50%,var(--s) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+h2.med{font-family:var(--fD);font-size:clamp(26px,3.5vw,54px);font-weight:900;line-height:1.1;background:linear-gradient(135deg,#fff 20%,#cfe0ff 70%,var(--s) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+h2.lft{text-align:left;font-size:clamp(24px,3vw,44px)!important;}
+.sub{font-size:clamp(13px,1.8vw,19px);font-weight:300;color:var(--dt);line-height:1.65;max-width:680px;margin:0 auto 36px;}
+.div{width:56px;height:2px;background:linear-gradient(90deg,var(--p),var(--s));margin:14px auto;box-shadow:0 0 8px var(--gB);}
+.div-l{margin-left:0;}
+
+/* Two-column */
+.tc{display:grid;grid-template-columns:1fr 1fr;gap:40px;width:100%;max-width:1100px;padding:0 40px;align-items:center;}
+
+/* List */
+ul.cl{list-style:none;text-align:left;}
+ul.cl li{padding:9px 0 9px 24px;position:relative;font-size:clamp(12px,1.3vw,15px);color:var(--dt);line-height:1.5;border-bottom:1px solid rgba(255,255,255,.05);}
+ul.cl li::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--s));box-shadow:0 0 6px var(--gB);}
+ul.cl li strong{color:#fff;}
+
+/* Glass card */
+.gc{background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--gb);border-radius:14px;padding:28px;position:relative;overflow:hidden;}
+.gc::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);}
+
+/* Verse */
+.vc{background:linear-gradient(135deg,rgba(30,77,155,.14) 0%,rgba(242,140,56,.05) 100%);border:1px solid rgba(30,77,155,.28);border-radius:14px;padding:28px 36px;position:relative;overflow:hidden;max-width:820px;margin:0 auto;}
+.vc::before{content:'"';position:absolute;top:-24px;left:16px;font-size:180px;color:rgba(30,77,155,.1);font-family:var(--fD);line-height:1;}
+.vt{font-size:clamp(12px,1.4vw,15px);color:var(--dt);line-height:1.85;font-style:italic;position:relative;z-index:1;}
+.vr{font-size:11px;font-weight:700;color:var(--s);letter-spacing:2px;margin-top:14px;text-transform:uppercase;}
+
+/* Counter */
+.cnum{font-size:clamp(64px,10vw,128px);font-weight:900;font-family:var(--fD);background:linear-gradient(135deg,var(--s),#ffd080);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;filter:drop-shadow(0 0 20px rgba(242,140,56,.45));}
+
+/* Stats grid */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:28px;}
+.si{background:var(--glass);border:1px solid var(--gb);border-radius:10px;padding:18px;text-align:left;position:relative;overflow:hidden;backdrop-filter:blur(8px);}
+.si::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(to bottom,var(--p),var(--s));}
+.sv{font-size:26px;font-weight:800;color:var(--s);line-height:1;margin-bottom:4px;}
+.slab{font-size:11px;color:var(--dt);font-weight:400;line-height:1.3;}
+
+/* Map */
+.mapC{position:relative;width:290px;height:290px;margin:0 auto;}
+.mapBg{width:100%;height:100%;border-radius:50%;background:radial-gradient(circle at 40% 55%,rgba(30,77,155,.45) 0%,rgba(30,77,155,.1) 40%,transparent 70%),linear-gradient(135deg,#0a1f40 0%,#041020 100%);border:2px solid rgba(30,77,155,.38);box-shadow:0 0 40px rgba(30,77,155,.28),inset 0 0 40px rgba(30,77,155,.1);position:relative;overflow:hidden;}
+.guat{position:absolute;top:48%;left:42%;transform:translate(-50%,-50%);width:85px;height:75px;background:rgba(30,77,155,.38);border:2px solid var(--p);border-radius:30% 40% 35% 25% / 40% 30% 45% 35%;box-shadow:0 0 20px var(--gB);}
+.pin{position:absolute;top:50%;left:44%;width:16px;height:16px;background:var(--s);border-radius:50% 50% 50% 0;transform:translate(-50%,-100%) rotate(-45deg);box-shadow:0 0 12px var(--gO);animation:pinP 2s ease-in-out infinite;}
+.pin::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:6px;height:6px;background:#fff;border-radius:50%;}
+@keyframes pinP{0%,100%{box-shadow:0 0 12px var(--gO)}50%{box-shadow:0 0 28px rgba(242,140,56,.9),0 0 50px rgba(242,140,56,.35)}}
+.pr{position:absolute;top:50%;left:44%;transform:translate(-50%,-50%);border:2px solid var(--s);border-radius:50%;animation:prA 2.2s ease-out infinite;}
+@keyframes prA{0%{width:16px;height:16px;opacity:.8}100%{width:64px;height:64px;opacity:0}}
+
+/* Timeline */
+.tl{position:relative;padding-left:40px;}
+.tl::before{content:'';position:absolute;left:12px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--p),var(--s));box-shadow:0 0 8px var(--gB);}
+.tli{position:relative;margin-bottom:22px;}
+.tli::before{content:'';position:absolute;left:-34px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--s);border:2px solid var(--bg);box-shadow:0 0 10px var(--gO);}
+.tli h4{font-size:13px;font-weight:700;color:var(--s);margin-bottom:4px;}
+.tli p{font-size:12px;color:var(--dt);line-height:1.5;}
+
+/* Comparison */
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:2px;width:100%;max-width:920px;border-radius:14px;overflow:hidden;box-shadow:0 0 40px rgba(0,0,0,.45);}
+.cmpB{background:linear-gradient(135deg,#1a0505,#2d0a0a);border:1px solid rgba(180,50,50,.2);padding:28px;}
+.cmpA{background:linear-gradient(135deg,#021a0e,#023518);border:1px solid rgba(50,180,100,.2);padding:28px;}
+.cmpL{font-size:10px;letter-spacing:4px;text-transform:uppercase;font-weight:700;margin-bottom:18px;}
+.cmpB .cmpL{color:#ff8080;} .cmpA .cmpL{color:#80ffb8;}
+.cmpUl{list-style:none;}
+.cmpUl li{font-size:12px;color:var(--dt);padding:7px 0 7px 18px;position:relative;border-bottom:1px solid rgba(255,255,255,.05);}
+.cmpB .cmpUl li::before{content:'✕';position:absolute;left:0;color:#ff6b6b;font-size:10px;}
+.cmpA .cmpUl li::before{content:'✓';position:absolute;left:0;color:#6bffb8;font-size:10px;}
+
+/* Pillars */
+.plrs{display:flex;gap:14px;width:100%;max-width:1100px;padding:0 20px;}
+.plr{flex:1;background:var(--glass);border:1px solid var(--gb);border-top:3px solid var(--p);border-radius:0 0 12px 12px;padding:22px 14px;text-align:center;backdrop-filter:blur(8px);transition:border-top-color .3s,box-shadow .3s;position:relative;overflow:hidden;}
+.plr::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(30,77,155,.08) 0%,transparent 50%);pointer-events:none;}
+.plr:hover{border-top-color:var(--s);box-shadow:0 0 28px rgba(242,140,56,.1);}
+.pln{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--s));display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;margin:0 auto 14px;box-shadow:0 0 14px var(--gB);}
+.plt{font-size:12px;color:var(--dt);line-height:1.55;}
+
+/* Icon row */
+.ir{display:flex;gap:16px;justify-content:center;margin-top:20px;}
+.ii{display:flex;flex-direction:column;align-items:center;gap:7px;padding:14px 18px;background:var(--glass);border:1px solid var(--gb);border-radius:12px;backdrop-filter:blur(8px);transition:all .3s;}
+.ii:hover{border-color:var(--s);box-shadow:0 0 18px var(--gO);}
+.ii .ic{font-size:26px;} .ii .lb{font-size:10px;color:var(--dt);text-align:center;letter-spacing:.5px;line-height:1.4;}
+
+/* Network */
+.nv{width:280px;height:280px;position:relative;}
+.nn{position:absolute;width:34px;height:34px;border-radius:50%;background:var(--glass);border:1px solid var(--p);display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 0 10px var(--gB);transform:translate(-50%,-50%);}
+.nn.nc{width:54px;height:54px;background:linear-gradient(135deg,var(--p),var(--s));font-size:22px;border:2px solid var(--s);box-shadow:0 0 22px var(--gO);top:50%;left:50%;}
+
+/* Agri */
+.agriC{width:270px;height:270px;position:relative;}
+.agriBg{width:100%;height:100%;border-radius:50%;background:radial-gradient(circle at 50% 60%,rgba(30,155,77,.28) 0%,rgba(30,77,155,.18) 50%,transparent 80%);border:1px solid rgba(30,155,77,.18);display:flex;align-items:center;justify-content:center;position:relative;box-shadow:0 0 40px rgba(30,155,77,.1);}
+.aIco{font-size:72px;animation:fl 4s ease-in-out infinite;filter:drop-shadow(0 0 18px rgba(30,155,77,.6));}
+.ao{position:absolute;border:1px dashed rgba(30,155,77,.18);border-radius:50%;}
+.ao1{width:190px;height:190px;animation:orb 8s linear infinite;}
+.ao2{width:255px;height:255px;animation:orb 13s linear infinite reverse;}
+@keyframes orb{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.od{position:absolute;top:-4px;left:50%;transform:translateX(-50%);width:8px;height:8px;border-radius:50%;background:var(--s);box-shadow:0 0 8px var(--gO);}
+
+/* Light rays final slide */
+.rays{position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:350px;background:conic-gradient(from 248deg at 50% 0%,transparent 238deg,rgba(30,77,155,.14) 258deg,transparent 278deg,rgba(242,140,56,.08) 298deg,transparent 318deg);z-index:2;animation:rr 20s linear infinite;pointer-events:none;}
+@keyframes rr{from{transform:translateX(-50%) rotate(0deg)}to{transform:translateX(-50%) rotate(360deg)}}
+
+/* Final message */
+.fm{font-family:var(--fD);font-size:clamp(22px,4vw,52px);font-weight:700;text-align:center;line-height:1.3;background:linear-gradient(135deg,#fff 30%,var(--s) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;max-width:860px;}
+
+/* Neon shimmer */
+@keyframes shim{0%{background-position:-200% center}100%{background-position:200% center}}
+
+/* Scroll hint */
+.sh{position:absolute;bottom:84px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:7px;opacity:.35;}
+.sh span{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--dt);}
+.sha{width:18px;height:18px;border-right:2px solid var(--dt);border-bottom:2px solid var(--dt);transform:rotate(45deg);animation:shb 2s ease-in-out infinite;}
+@keyframes shb{0%,100%{transform:rotate(45deg) translateY(0);opacity:.4}50%{transform:rotate(45deg) translateY(6px);opacity:1}}
+
+/* RESPONSIVE */
+@media(max-width:768px){.tc{grid-template-columns:1fr;gap:18px;padding:0 16px;}.sc{padding:16px;}.plrs{flex-direction:column;}.cmp{grid-template-columns:1fr;}#dots{display:none;}.sg{grid-template-columns:1fr;}.ir{flex-wrap:wrap;}}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="ld-title">Almolonga</div>
+  <div class="ld-bar"><div class="ld-fill"></div></div>
+  <div class="ld-txt">Carregando apresentação</div>
+</div>
+
+<!-- PROGRESS BAR -->
+<div id="pBar" style="width:9.1%"></div>
+
+<!-- KERIGMA LOGO -->
+<div class="klg">
+  <div class="klg-icon">K</div>
+  <span class="klg-txt">Kerigma</span>
+</div>
+
+<!-- NAVIGATION -->
+<div class="nav">
+  <button class="nb" onclick="go(-1)">&#8592;</button>
+  <span class="nc" id="nc">01 / 11</span>
+  <button class="nb" onclick="go(1)">&#8594;</button>
+</div>
+
+<!-- DOTS -->
+<div id="dots"></div>
+
+<!-- PARTICLES -->
+<canvas id="pCanvas"></canvas>
+
+<!-- ================================================================ SLIDES -->
+<div class="sWrap" id="sWrap">
+
+<!-- SLIDE 1 -->
+<div class="slide on" id="s1">
+  <div class="bg bg1"><div class="grid"></div><div class="ll"></div><div class="ll"></div><div class="ll"></div><div class="orb orbB" style="top:5%;left:-8%;"></div><div class="orb orbO" style="bottom:-5%;right:-4%;"></div></div>
+  <div id="stars" style="position:absolute;inset:0;overflow:hidden;z-index:1;"></div>
+  <div style="position:absolute;inset:0;background:linear-gradient(to top,var(--bg) 0%,transparent 35%),linear-gradient(to bottom,rgba(4,21,45,.6) 0%,transparent 18%);z-index:2;"></div>
+  <div class="sc" style="text-align:center;z-index:10;">
+    <div style="font-size:10px;letter-spacing:5px;text-transform:uppercase;color:var(--s);margin-bottom:18px;" id="s1t">DOCUMENTÁRIO · HISTÓRIA · TRANSFORMAÇÃO</div>
+    <h1 class="big" id="s1h" style="margin-bottom:12px;">Almolonga</h1>
+    <h2 style="font-family:var(--fD);font-size:clamp(17px,2.4vw,30px);color:var(--dt);font-weight:400;font-style:italic;margin-bottom:18px;" id="s1s">A História de Transformação de uma Cidade</h2>
+    <div class="div" id="s1d"></div>
+    <p class="sub" id="s1p" style="margin-top:18px;">Como uma comunidade passou por mudanças espirituais, sociais e econômicas que transformaram para sempre seu destino.</p>
+  </div>
+  <div style="position:absolute;bottom:72px;left:50%;transform:translateX(-50%);font-size:11px;color:rgba(255,255,255,.3);letter-spacing:2px;font-style:italic;text-align:center;width:100%;z-index:10;" id="s1v">2 Crônicas 7:14 — "Se o meu povo, que se chama pelo meu nome, se humilhar..."</div>
+  <div class="sh"><span>Avançar</span><div class="sha"></div></div>
+  <div class="slbl">Slide 01 — Introdução</div>
+</div>
+
+<!-- SLIDE 2 -->
+<div class="slide" id="s2">
+  <div class="bg bg2"><div class="grid"></div><div class="orb orbB" style="top:15%;right:2%;"></div></div>
+  <div class="slbl">Slide 02 — Localização</div>
+  <div class="tc">
+    <div>
+      <div class="tag" id="s2tag">Guatemala · América Central</div>
+      <h2 class="med lft" id="s2h">Onde fica Almolonga?</h2>
+      <div class="div div-l"></div>
+      <div class="sg" id="s2sg">
+        <div class="si"><div class="sv" id="cpop">0</div><div class="slab">Habitantes na cidade</div></div>
+        <div class="si"><div class="sv" id="cchr">0%</div><div class="slab">Cristãos nascidos de novo</div></div>
+        <div class="si"><div class="sv">Quiché</div><div class="slab">Oeste da Guatemala</div></div>
+        <div class="si"><div class="sv">Maia</div><div class="slab">Predominância indígena</div></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:20px;">
+      <div class="mapC fl" id="s2map">
+        <div class="mapBg"><div class="guat"></div><div class="pin"></div><div class="pr"></div><div class="pr" style="animation-delay:.9s;"></div></div>
+      </div>
+      <p style="font-size:12px;color:var(--dt);text-align:center;line-height:1.6;max-width:240px;">Conhecida mundialmente pela sua <strong style="color:var(--s);">agricultura altamente produtiva</strong></p>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 3 -->
+<div class="slide" id="s3">
+  <div class="bg bgDark"><div class="grid" style="opacity:.25;"></div><div class="orb" style="background:rgba(160,20,20,.18);width:420px;height:420px;top:15%;left:5%;filter:blur(100px);"></div></div>
+  <div class="slbl">Slide 03 — Antes</div>
+  <div class="tc">
+    <div>
+      <div class="htag" id="s3tag">Situação Antes da Transformação</div>
+      <h2 class="med lft" id="s3h">A Situação Antes da Conversão</h2>
+      <div class="div div-l" style="background:linear-gradient(90deg,#ff6b6b,var(--s));"></div>
+      <ul class="cl" id="s3ul">
+        <li>Altos índices de <strong>alcoolismo</strong></li>
+        <li>Violência doméstica frequente</li>
+        <li>Pobreza significativa na região</li>
+        <li>Práticas religiosas sincréticas</li>
+        <li>Muitas famílias em dificuldade econômica</li>
+        <li>Grande perseguição religiosa</li>
+      </ul>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;">
+      <div class="gc" id="s3box" style="text-align:center;padding:36px 48px;">
+        <div style="font-size:10px;letter-spacing:4px;text-transform:uppercase;color:rgba(255,120,120,.85);margin-bottom:10px;">Bares em atividade</div>
+        <div class="cnum" id="cbars">0</div>
+        <div style="font-size:10px;letter-spacing:3px;color:var(--dt);text-transform:uppercase;margin-top:6px;">em uma cidade de 19 mil hab.</div>
+      </div>
+      <div id="s3msg" style="font-size:clamp(13px,1.6vw,17px);font-style:italic;color:rgba(255,255,255,.48);border-left:3px solid var(--s);padding-left:18px;text-align:left;max-width:280px;line-height:1.6;">"Uma cidade marcada pela dor e pela desesperança."</div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 4 -->
+<div class="slide" id="s4">
+  <div class="bg bg1"><div class="grid"></div><div class="orb orbB" style="bottom:8%;right:3%;"></div><div class="orb orbO" style="top:3%;left:18%;opacity:.45;"></div></div>
+  <div class="slbl">Slide 04 — O Início</div>
+  <div class="tc">
+    <div>
+      <div class="tag" id="s4tag">O Início da Mudança</div>
+      <h2 class="med lft" id="s4h">O Início da Mudança</h2>
+      <div class="div div-l"></div>
+      <ul class="cl" id="s4ul">
+        <li>Missionários e líderes cristãos começaram a evangelizar</li>
+        <li>Foram <strong>perseguidos</strong> por sua fé</li>
+        <li>Pequenos <strong>grupos de oração</strong> foram formados</li>
+        <li>3 a 4 dias de jejum por semana</li>
+        <li>Famílias passaram a frequentar igrejas evangélicas</li>
+        <li>Relatos de <strong>conversões individuais</strong> surgiram</li>
+      </ul>
+    </div>
+    <div>
+      <div class="tl" id="s4tl">
+        <div class="tli"><h4>Evangelização Pioneira</h4><p>Mariano Riscajche Cotoc inicia pregações na região</p></div>
+        <div class="tli"><h4>Perseguição e Resistência</h4><p>Missionários enfrentam oposição mas continuam firmes</p></div>
+        <div class="tli"><h4>Grupos de Oração</h4><p>Células de crentes começam a se reunir regularmente</p></div>
+        <div class="tli"><h4>Jejum e Intercessão</h4><p>3 a 4 dias semanais de jejum e oração intensos</p></div>
+        <div class="tli"><h4>Primeiras Conversões</h4><p>Testemunhos de transformação começam a se multiplicar</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 5 -->
+<div class="slide" id="s5">
+  <div class="bg bg2"><div class="grid"></div><div class="orb orbO" style="top:0;right:18%;"></div><div class="orb orbB" style="bottom:0;left:3%;"></div></div>
+  <div class="slbl">Slide 05 — Arrependimento</div>
+  <div class="tc">
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;">
+      <div class="gc" id="s5box" style="text-align:center;padding:36px 52px;min-width:260px;">
+        <div style="font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--s);margin-bottom:12px;">Almas alcançadas em um ano</div>
+        <div class="cnum" id="csouls">0</div>
+        <div style="font-size:10px;letter-spacing:2px;color:var(--dt);text-transform:uppercase;margin-top:8px;">pessoas convertidas</div>
+      </div>
+      <div class="vc" id="s5vc" style="padding:18px 26px;">
+        <div class="vt" style="font-size:12px;">"O Senhor... não quer que nenhum pereça, mas que todos cheguem ao arrependimento."</div>
+        <div class="vr">2 Pedro 3:9</div>
+      </div>
+    </div>
+    <div>
+      <div class="tag" id="s5tag">Avivamento · Conversões</div>
+      <h2 class="med lft" id="s5h">Arrependimento e Conversões</h2>
+      <div class="div div-l"></div>
+      <ul class="cl" id="s5ul">
+        <li>Crescimento expressivo do número de crentes</li>
+        <li><strong>3 mil pessoas</strong> aceitaram Jesus em um ano</li>
+        <li>Abandono do alcoolismo em massa</li>
+        <li>Reconciliação entre famílias</li>
+        <li>Crescimento dos cultos e reuniões</li>
+        <li>Vigílias de oração até a madrugada</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 6 -->
+<div class="slide" id="s6">
+  <div class="bg bg1"><div class="grid"></div><div class="orb orbB" style="top:25%;left:-2%;"></div></div>
+  <div class="slbl">Slide 06 — Transformação</div>
+  <div style="position:relative;z-index:10;width:100%;max-width:1100px;padding:0 36px;">
+    <div style="text-align:center;margin-bottom:28px;">
+      <div class="tag" id="s6tag">Impacto Social · Comunidade</div>
+      <h2 class="med" id="s6h">Transformação da Comunidade</h2>
+      <div class="div"></div>
+    </div>
+    <div class="cmp" id="s6cmp">
+      <div class="cmpB"><div class="cmpL">⚡ Antes</div><ul class="cmpUl"><li>36 bares em pleno funcionamento</li><li>Delegacias superlotadas</li><li>Violência doméstica alta</li><li>Comunidade fragmentada</li><li>Famílias desestruturadas</li></ul></div>
+      <div class="cmpA"><div class="cmpL">✨ Depois</div><ul class="cmpUl"><li>Bares fecharam por falta de clientes</li><li>Delegacias quase sem ocorrências</li><li>Restauração e paz familiar</li><li>União e cooperação entre vizinhos</li><li>Participação ativa na comunidade</li></ul></div>
+    </div>
+    <div class="ir" id="s6ir">
+      <div class="ii"><div class="ic">🏠</div><div class="lb">Famílias<br>Restauradas</div></div>
+      <div class="ii"><div class="ic">🤝</div><div class="lb">Comunidade<br>Unida</div></div>
+      <div class="ii"><div class="ic">⚖️</div><div class="lb">Criminalidade<br>Reduzida</div></div>
+      <div class="ii"><div class="ic">✨</div><div class="lb">Vida<br>Transformada</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 7 -->
+<div class="slide" id="s7">
+  <div class="bg bgGreen"><div class="grid"></div><div class="orb" style="background:rgba(30,155,77,.22);width:500px;height:500px;bottom:-80px;right:-40px;filter:blur(100px);"></div><div class="orb orbB" style="top:0;left:0;"></div></div>
+  <div class="slbl">Slide 07 — Agricultura</div>
+  <div class="tc">
+    <div>
+      <div class="tag" id="s7tag">Milagre Agrícola · Prosperidade</div>
+      <h2 class="med lft" id="s7h">Impacto na Agricultura</h2>
+      <div class="div div-l" style="background:linear-gradient(90deg,#1e9b4d,var(--s));"></div>
+      <ul class="cl" id="s7ul">
+        <li>Agricultores relataram <strong>colheitas maiores</strong></li>
+        <li>Produção de legumes e verduras ganhou destaque</li>
+        <li>Produtos vendidos em outras regiões do país</li>
+        <li><strong>Vegetais gigantes</strong> — tamanho extraordinário</li>
+        <li>Solo extremamente fértil</li>
+        <li>Economia local apresentou crescimento expressivo</li>
+        <li>Universidades dos EUA estudaram a fertilidade do solo</li>
+      </ul>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;">
+      <div class="agriC fl" id="s7vis">
+        <div class="agriBg"><div class="ao ao1"><div class="od"></div></div><div class="ao ao2"><div class="od" style="background:var(--p);"></div></div><div class="aIco">🌽</div></div>
+      </div>
+      <div class="gc" id="s7fc" style="text-align:center;padding:14px 28px;">
+        <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--s);">Reconhecimento</div>
+        <div style="font-size:13px;color:var(--dt);margin-top:7px;line-height:1.55;">Vegetais <strong style="color:#fff;">3× maiores</strong> que o<br>padrão normal da região</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 8 -->
+<div class="slide" id="s8">
+  <div class="bg bg2"><div class="grid"></div><div class="orb orbB" style="top:18%;right:8%;"></div><div class="orb orbO" style="bottom:8%;left:3%;"></div></div>
+  <div class="slbl">Slide 08 — Igreja</div>
+  <div class="tc">
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+      <div class="nv" id="s8nv">
+        <div class="nn nc">⛪</div>
+        <div class="nn" style="top:12%;left:50%;">🙏</div>
+        <div class="nn" style="top:50%;left:88%;">✝️</div>
+        <div class="nn" style="top:88%;left:65%;">📖</div>
+        <div class="nn" style="top:88%;left:35%;">🕊️</div>
+        <div class="nn" style="top:50%;left:12%;">🔥</div>
+        <div class="nn" style="top:12%;left:30%;">⭐</div>
+        <div class="nn" style="top:12%;left:70%;">🌟</div>
+        <svg style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:.28;">
+          <line x1="50%" y1="50%" x2="50%" y2="12%" stroke="#1E4D9B" stroke-width="1.5"/>
+          <line x1="50%" y1="50%" x2="88%" y2="50%" stroke="#1E4D9B" stroke-width="1.5"/>
+          <line x1="50%" y1="50%" x2="65%" y2="88%" stroke="#1E4D9B" stroke-width="1.5"/>
+          <line x1="50%" y1="50%" x2="35%" y2="88%" stroke="#1E4D9B" stroke-width="1.5"/>
+          <line x1="50%" y1="50%" x2="12%" y2="50%" stroke="#1E4D9B" stroke-width="1.5"/>
+          <line x1="50%" y1="50%" x2="30%" y2="12%" stroke="#1E4D9B" stroke-width="1.5"/>
+          <line x1="50%" y1="50%" x2="70%" y2="12%" stroke="#1E4D9B" stroke-width="1.5"/>
+        </svg>
+      </div>
+    </div>
+    <div>
+      <div class="tag" id="s8tag">Igreja · Multiplicação</div>
+      <h2 class="med lft" id="s8h">O Papel da Igreja</h2>
+      <div class="div div-l"></div>
+      <ul class="cl" id="s8ul">
+        <li>Multiplicação de <strong>congregações cristãs</strong></li>
+        <li>Reuniões frequentes de oração e intercessão</li>
+        <li>Trabalho social junto às famílias</li>
+        <li>Ensino de princípios bíblicos</li>
+        <li><strong>Mais de duas dúzias</strong> de igrejas na cidade</li>
+      </ul>
+      <div class="gc" id="s8st" style="margin-top:22px;padding:18px;">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div style="font-size:38px;font-weight:900;color:var(--s);font-family:var(--fD);">24+</div>
+          <div style="font-size:12px;color:var(--dt);line-height:1.55;">Igrejas ativas na cidade,<br>servindo toda a comunidade</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 9 -->
+<div class="slide" id="s9">
+  <div class="bg bg1"><div class="grid"></div><div class="orb orbB" style="top:25%;right:-2%;"></div><div class="orb orbO" style="bottom:0;left:28%;"></div></div>
+  <div class="slbl">Slide 09 — Reconhecimento</div>
+  <div style="position:relative;z-index:10;width:100%;max-width:1100px;padding:0 36px;">
+    <div style="text-align:center;margin-bottom:26px;">
+      <div class="tag" id="s9tag">Reconhecimento Internacional</div>
+      <h2 class="med" id="s9h">Reconhecimento Internacional</h2>
+      <div class="div"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;">
+      <div>
+        <ul class="cl" id="s9ul">
+          <li>Visitas de <strong>pastores e líderes cristãos</strong> do mundo todo</li>
+          <li>Pesquisadores e documentaristas internacionais</li>
+          <li>Exemplo de transformação comunitária global</li>
+          <li>História divulgada em <strong>diversos países</strong></li>
+          <li>Universidades dos EUA estudaram a fertilidade do solo</li>
+        </ul>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="gc" id="s9wld" style="text-align:center;padding:22px;">
+          <div style="font-size:44px;margin-bottom:10px;" class="fl">🌍</div>
+          <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--s);margin-bottom:8px;">Alcance Global</div>
+          <div style="display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:6px;">
+            <span style="font-size:22px;">🇺🇸</span><span style="font-size:22px;">🇧🇷</span><span style="font-size:22px;">🇬🇧</span><span style="font-size:22px;">🇩🇪</span><span style="font-size:22px;">🇰🇷</span><span style="font-size:22px;">🇯🇵</span>
+          </div>
+          <div style="font-size:10px;color:var(--dt);margin-top:10px;">Nações que conheceram a história de Almolonga</div>
+        </div>
+        <div class="gc" id="s9qt" style="padding:18px;">
+          <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--s);margin-bottom:7px;">Documentário</div>
+          <p style="font-size:12px;color:var(--dt);line-height:1.65;font-style:italic;">"Transformação" — documentário de George Otis Jr. que levou a história de Almolonga ao mundo inteiro.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 10 -->
+<div class="slide" id="s10">
+  <div class="bg bg2"><div class="grid"></div><div class="orb orbB" style="top:0;left:28%;"></div></div>
+  <div class="slbl">Slide 10 — Lições</div>
+  <div style="position:relative;z-index:10;width:100%;max-width:1100px;padding:0 36px;">
+    <div style="text-align:center;margin-bottom:28px;">
+      <div class="tag" id="s10tag">Aplicação · Reflexão</div>
+      <h2 class="med" id="s10h">Lições da História de Almolonga</h2>
+      <div class="div"></div>
+    </div>
+    <div class="plrs" id="s10pl">
+      <div class="plr"><div class="pln">1</div><div class="plt">A mudança começa com <strong style="color:#fff;">oração</strong> e <strong style="color:#fff;">arrependimento</strong></div></div>
+      <div class="plr"><div class="pln">2</div><div class="plt">A fé pode influenciar <strong style="color:#fff;">comportamentos</strong> e relacionamentos</div></div>
+      <div class="plr"><div class="pln">3</div><div class="plt">Comunidades transformadas geram <strong style="color:#fff;">impacto social</strong></div></div>
+      <div class="plr"><div class="pln">4</div><div class="plt">Trabalho, união e responsabilidade <strong style="color:#fff;">fortalecem</strong> uma cidade</div></div>
+      <div class="plr"><div class="pln">5</div><div class="plt">Um povo que se arrepende genuinamente pode ser <strong style="color:#fff;">restaurado</strong></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 11 -->
+<div class="slide" id="s11">
+  <div class="bg" style="background:radial-gradient(ellipse at 50% 28%,rgba(30,77,155,.38) 0%,transparent 58%),radial-gradient(ellipse at 50% 100%,rgba(242,140,56,.18) 0%,transparent 48%),var(--bg);"><div class="grid"></div><div class="rays"></div><div class="orb orbB" style="top:0;left:28%;"></div><div class="orb orbO" style="bottom:0;right:18%;"></div></div>
+  <div class="slbl">Slide 11 — Conclusão</div>
+  <div style="position:relative;z-index:10;width:100%;max-width:880px;padding:0 36px;text-align:center;">
+    <div class="tag" id="s11tag">Conclusão · Chamado</div>
+    <div class="fm" id="s11m">"Um povo convertido alcança as mãos do Senhor"</div>
+    <div class="div" id="s11dv" style="margin:28px auto;"></div>
+    <div class="vc" id="s11vc">
+      <div style="font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--s);margin-bottom:10px;font-weight:700;">Deuteronômio 28:1-3 (NVI)</div>
+      <div class="vt">"Se vocês obedecerem fielmente ao Senhor, o seu Deus, e seguirem cuidadosamente todos os seus mandamentos que hoje dou a vocês, o Senhor, o seu Deus, os porá acima de todas as nações da terra. Todas estas bênçãos virão sobre vocês e os acompanharão se obedecerem ao Senhor, o seu Deus: <strong style="color:#fff;">Vocês serão abençoados na cidade e serão abençoados no campo.</strong>"</div>
+    </div>
+    <p id="s11tg" style="font-size:clamp(12px,1.4vw,16px);color:var(--dt);font-style:italic;margin-top:22px;line-height:1.6;">"Quando uma geração se volta para Deus, uma cidade inteira pode ser transformada."</p>
+    <div style="margin-top:32px;display:flex;align-items:center;justify-content:center;gap:12px;" id="s11br">
+      <div class="klg-icon" style="width:38px;height:38px;font-size:16px;">K</div>
+      <div>
+        <div style="font-size:14px;font-weight:800;letter-spacing:4px;text-transform:uppercase;">Kerigma</div>
+        <div style="font-size:10px;color:var(--dt);letter-spacing:2px;">Formando vidas, transformando nações</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /sWrap -->
+
+<script>
+/* ============================================================ PARTICLES */
+(function(){
+  const cv=document.getElementById('pCanvas'),ctx=cv.getContext('2d');
+  let W,H,pts=[];
+  function rsz(){W=cv.width=innerWidth;H=cv.height=innerHeight;}
+  rsz();addEventListener('resize',rsz);
+  class P{
+    constructor(){this.r();}
+    r(init){
+      this.x=Math.random()*W; this.y=init?Math.random()*H:H+8;
+      this.vx=(Math.random()-.5)*.4; this.vy=-(Math.random()*.5+.1);
+      this.a=Math.random()*.45+.08; this.sz=Math.random()*1.8+.5;
+      this.c=Math.random()>.5?[30,77,155]:[242,140,56];
+    }
+    u(){this.x+=this.vx;this.y+=this.vy;this.a-=.0008;if(this.y<-8||this.a<=0)this.r();}
+    d(){ctx.beginPath();ctx.arc(this.x,this.y,this.sz,0,Math.PI*2);ctx.fillStyle=`rgba(${this.c},${this.a})`;ctx.fill();}
+  }
+  for(let i=0;i<110;i++)pts.push(new P(true));
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    pts.forEach(p=>{p.u();p.d();});
+    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
+      const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<75){ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.strokeStyle=`rgba(30,77,155,${.04*(1-d/75)})`;ctx.lineWidth=.5;ctx.stroke();}
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ============================================================ STARS */
+(function(){
+  const c=document.getElementById('stars');
+  for(let i=0;i<75;i++){
+    const s=document.createElement('div');s.className='star';
+    s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*65}%;width:${Math.random()>.8?3:2}px;height:${Math.random()>.8?3:2}px;--d:${2+Math.random()*4}s;--dl:${Math.random()*5}s;opacity:${.1+Math.random()*.4};`;
+    c.appendChild(s);
+  }
+})();
+
+/* ============================================================ SLIDE SYSTEM */
+let cur=1,tot=11,busy=false;
+
+// Build dots
+(function(){
+  const d=document.getElementById('dots');
+  for(let i=1;i<=tot;i++){
+    const el=document.createElement('div');
+    el.className='dot'+(i===1?' on':'');
+    el.onclick=()=>jump(i);
+    d.appendChild(el);
+  }
+})();
+
+function updNav(){
+  document.getElementById('pBar').style.width=(cur/tot*100)+'%';
+  document.getElementById('nc').textContent=String(cur).padStart(2,'0')+' / '+String(tot).padStart(2,'0');
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('on',i+1===cur));
+}
+
+function go(d){jump(cur+d);}
+
+function jump(n){
+  if(busy||n<1||n>tot||n===cur)return;
+  busy=true;
+  const from=document.getElementById('s'+cur),to=document.getElementById('s'+n);
+  const dir=n>cur?1:-1;
+  gsap.to(from,{opacity:0,x:-70*dir,duration:.45,ease:'power2.in',onComplete:()=>{
+    from.classList.remove('on');gsap.set(from,{x:0});
+    resetSlide(n);
+    to.classList.add('on');
+    gsap.fromTo(to,{opacity:0,x:70*dir},{opacity:1,x:0,duration:.55,ease:'power2.out',onComplete:()=>{
+      busy=false;cur=n;updNav();anim(n);
+    }});
+  }});
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'||e.key===' '){e.preventDefault();go(1);}
+  else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();go(-1);}
+  else if(e.key>='1'&&e.key<='9')jump(parseInt(e.key));
+  else if(e.key==='0')jump(10);
+});
+let tx=0;
+document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;});
+document.addEventListener('touchend',e=>{const d=tx-e.changedTouches[0].clientX;if(Math.abs(d)>45)go(d>0?1:-1);});
+
+/* ============================================================ COUNTER */
+function cnt(el,target,dur=1400,sfx=''){
+  const t0=performance.now();
+  (function tick(now){
+    const p=Math.min((now-t0)/dur,1),e=1-Math.pow(1-p,3);
+    el.textContent=Math.round(e*target).toLocaleString('pt-BR')+sfx;
+    if(p<1)requestAnimationFrame(tick);
+    else el.textContent=target.toLocaleString('pt-BR')+sfx;
+  })(t0);
+}
+
+/* ============================================================ RESET HELPERS */
+function resetSlide(n){
+  const sets={
+    2:['#s2tag','#s2h','#s2sg .si','#s2map'],
+    3:['#s3tag','#s3h','#s3ul li','#s3box','#s3msg'],
+    4:['#s4tag','#s4h','#s4ul li','#s4tl .tli'],
+    5:['#s5tag','#s5h','#s5ul li','#s5box','#s5vc'],
+    6:['#s6tag','#s6h','#s6cmp','#s6ir .ii'],
+    7:['#s7tag','#s7h','#s7ul li','#s7vis','#s7fc'],
+    8:['#s8tag','#s8h','#s8nv','#s8ul li','#s8st'],
+    9:['#s9tag','#s9h','#s9ul li','#s9wld','#s9qt'],
+    10:['#s10tag','#s10h','#s10pl .plr'],
+    11:['#s11tag','#s11m','#s11dv','#s11vc','#s11tg','#s11br'],
+  };
+  if(sets[n])sets[n].forEach(s=>gsap.set(s,{opacity:0,y:20,x:0}));
+  if(n===3){gsap.set('#s3box',{opacity:0,y:0});gsap.set('#s3msg',{opacity:0});}
+  if(n===7)gsap.set('#s7vis',{opacity:0,scale:.88});
+  if(n===8)gsap.set('#s8nv',{opacity:0,scale:.88});
+}
+
+/* ============================================================ ANIMATIONS */
+function anim(n){
+  ({1:a1,2:a2,3:a3,4:a4,5:a5,6:a6,7:a7,8:a8,9:a9,10:a10,11:a11}[n]||function(){})();
+}
+
+function a1(){
+  const tl=gsap.timeline();
+  tl.to('#s1t',{opacity:1,y:0,duration:.55})
+    .to('#s1h',{opacity:1,y:0,duration:.75,ease:'power3.out'},'<.2')
+    .to('#s1s',{opacity:1,y:0,duration:.55},'<.3')
+    .to('#s1d',{opacity:1,duration:.4},'<.2')
+    .to('#s1p',{opacity:1,y:0,duration:.55},'<.2')
+    .to('#s1v',{opacity:1,duration:.8},'<.3');
+}
+
+function a2(){
+  gsap.to('#s2tag',{opacity:1,y:0,duration:.5});
+  gsap.to('#s2h',{opacity:1,y:0,duration:.6,delay:.15});
+  gsap.to('#s2map',{opacity:1,y:0,scale:1,duration:.8,delay:.25,ease:'back.out(1.4)'});
+  gsap.to('#s2sg .si',{opacity:1,y:0,duration:.4,stagger:.12,delay:.4});
+  setTimeout(()=>{
+    cnt(document.getElementById('cpop'),19000,1500);
+    setTimeout(()=>{
+      const e=document.getElementById('cchr');let v=0;
+      const iv=setInterval(()=>{v=Math.min(v+2,94);e.textContent=v+'%';if(v>=94)clearInterval(iv);},28);
+    },500);
+  },700);
+}
+
+function a3(){
+  gsap.to('#s3tag',{opacity:1,y:0,duration:.5});
+  gsap.to('#s3h',{opacity:1,y:0,duration:.6,delay:.15});
+  gsap.to('#s3ul li',{opacity:1,x:0,duration:.32,stagger:.1,delay:.3});
+  gsap.to('#s3box',{opacity:1,duration:.5,delay:.5,ease:'back.out(1.4)'});
+  gsap.to('#s3msg',{opacity:1,duration:.5,delay:.85});
+  setTimeout(()=>cnt(document.getElementById('cbars'),36,1100),600);
+}
+
+function a4(){
+  gsap.to('#s4tag',{opacity:1,y:0,duration:.5});
+  gsap.to('#s4h',{opacity:1,y:0,duration:.6,delay:.15});
+  gsap.to('#s4ul li',{opacity:1,x:0,duration:.32,stagger:.1,delay:.3});
+  gsap.to('#s4tl .tli',{opacity:1,x:0,duration:.38,stagger:.14,delay:.35});
+}
+
+function a5(){
+  gsap.to('#s5tag',{opacity:1,y:0,duration:.5});
+  gsap.to('#s5h',{opacity:1,y:0,duration:.6,delay:.15});
+  gsap.to('#s5ul li',{opacity:1,x:0,duration:.32,stagger:.1,delay:.3});
+  gsap.to('#s5box',{opacity:1,y:0,duration:.6,delay:.45,ease:'back.out(1.3)'});
+  gsap.to('#s5vc',{opacity:1,y:0,duration:.5,delay:.75});
+  setTimeout(()=>cnt(document.getElementById('csouls'),3000,2000),600);
+}
+
+function a6(){
+  gsap.to('#s6tag',{opacity:1,y:0,duration:.5});
+  gsap.to('#s6h',{opacity:1,y:0,duration:.6,delay:.15});
+  gsap.to('#s6cmp',{opacity:1,y:0,duration:.7,delay:.3});
+  gsap.to('#s6ir .ii',{opacity:1,y:0,duration:.35,stagger:.1,delay:.65});
+}
+
+function a7(){
+  gsap.to('#s7tag',{opacity:1,y:0,duration:.5});
+  gsap.to('#s7h',{opacity:1,y:0,duration:.6,delay:.15});
+  gsap.to('#s7ul li',{opacity:1,x:0,duration:.32,stagger:.1,delay:.3});
+  gsap.to('#s7vis',{opacity:1,scale:1,duration:.8,delay:.4,ease:'back.out(1.3)'});
+  gsap.to('#s7fc',{opacity:1,y:0,duration:.5,delay:.8});
+}
+
+function a8(){
+  gsap.to('#s8tag',{opacity:1,y:0,duration:.5});
+  gsap.to('#s8h',{opacity:1,y:0,duration:.6,delay:.15});
+  gsap.to('#s8nv',{opacity:1,scale:1,duration:.8,delay:.25,ease:'back.out(1.2)'});
+  gsap.to('#s8ul li',{opacity:1,x:0,duration:.32,stagger:.1,delay:.55});
+  gsap.to('#s8st',{opacity:1,y:0,duration:.5,delay:.9});
+}
+
+function a9(){
+  gsap.to('#s9tag',{opacity:1,y:0,duration:.5});
+  gsap.to('#s9h',{opacity:1,y:0,duration:.6,delay:.15});
+  gsap.to('#s9ul li',{opacity:1,x:0,duration:.32,stagger:.1,delay:.3});
+  gsap.to('#s9wld',{opacity:1,y:0,duration:.6,delay:.5,ease:'back.out(1.2)'});
+  gsap.to('#s9qt',{opacity:1,y:0,duration:.5,delay:.85});
+}
+
+function a10(){
+  gsap.to('#s10tag',{opacity:1,y:0,duration:.5});
+  gsap.to('#s10h',{opacity:1,y:0,duration:.6,delay:.15});
+  gsap.to('#s10pl .plr',{opacity:1,y:0,duration:.42,stagger:.16,delay:.35,ease:'back.out(1.3)'});
+}
+
+function a11(){
+  gsap.to('#s11tag',{opacity:1,y:0,duration:.5});
+  gsap.to('#s11m',{opacity:1,y:0,duration:1,delay:.2,ease:'power3.out'});
+  gsap.to('#s11dv',{opacity:1,duration:.4,delay:.55});
+  gsap.to('#s11vc',{opacity:1,y:0,duration:.75,delay:.7});
+  gsap.to('#s11tg',{opacity:1,y:0,duration:.6,delay:1.1});
+  gsap.to('#s11br',{opacity:1,duration:.6,delay:1.5});
+}
+
+/* ============================================================ INIT */
+// Set all non-first-slide elements invisible
+for(let i=2;i<=tot;i++)resetSlide(i);
+// Extra resets for specific elements
+gsap.set(['#s1t','#s1h','#s1s','#s1d','#s1p'],{opacity:0,y:20});
+gsap.set('#s1v',{opacity:0});
+gsap.set('#s2map',{opacity:0,scale:.82});
+gsap.set('#s6cmp',{opacity:0,y:20});
+gsap.set('#s6ir',{opacity:0});
+
+// Loader
+addEventListener('load',()=>{
+  setTimeout(()=>{
+    gsap.to('#loader',{opacity:0,duration:.7,onComplete:()=>{
+      document.getElementById('loader').style.display='none';
+      a1();updNav();
+    }});
+  },1700);
+});
+</script>
+</body>
+</html>
