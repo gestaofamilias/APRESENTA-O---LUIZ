@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Editor · Almolonga Apresentação · Kerigma</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#04152D;--p:#1E4D9B;--s:#F28C38;--dt:#D6D6D6;--glass:rgba(255,255,255,.05);--gb:rgba(255,255,255,.1);--font:'Segoe UI',sans-serif}
+body{background:var(--bg);color:#fff;font-family:var(--font);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+/* HEADER */
+header{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:rgba(0,0,0,.4);border-bottom:1px solid var(--gb);flex-shrink:0;gap:12px;z-index:10}
+.logo{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;letter-spacing:2px;color:var(--dt)}
+.logo span{width:28px;height:28px;background:linear-gradient(135deg,var(--p),var(--s));border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff}
+.hbtns{display:flex;gap:8px;flex-wrap:wrap}
+button{padding:7px 14px;border-radius:7px;border:none;cursor:pointer;font-size:12px;font-weight:600;font-family:var(--font);transition:all .2s;white-space:nowrap}
+.btn-primary{background:linear-gradient(135deg,var(--p),var(--s));color:#fff}
+.btn-primary:hover{opacity:.85;transform:scale(1.03)}
+.btn-outline{background:var(--glass);border:1px solid var(--gb);color:var(--dt)}
+.btn-outline:hover{border-color:var(--s);color:#fff}
+.btn-save{background:linear-gradient(135deg,#1a7a3a,#2ea858);color:#fff}
+.btn-save:hover{opacity:.85}
+.btn-save:disabled{opacity:.4;cursor:not-allowed}
+#statusMsg{font-size:11px;color:var(--s);letter-spacing:1px;min-width:140px;text-align:right}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:360px 1fr;flex:1;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{display:flex;flex-direction:column;border-right:1px solid var(--gb);overflow:hidden;background:rgba(0,0,0,.25)}
+
+/* SLIDE TABS */
+.slide-tabs{display:flex;flex-wrap:wrap;gap:4px;padding:10px;border-bottom:1px solid var(--gb);background:rgba(0,0,0,.2)}
+.stab{padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;background:var(--glass);border:1px solid var(--gb);color:var(--dt);cursor:pointer;transition:all .2s;min-width:38px;text-align:center}
+.stab:hover{border-color:var(--p);color:#fff}
+.stab.active{background:linear-gradient(135deg,var(--p),var(--s));border-color:transparent;color:#fff;box-shadow:0 0 10px rgba(30,77,155,.4)}
+
+/* EDITOR FORM */
+.editor-scroll{flex:1;overflow-y:auto;padding:14px}
+.editor-scroll::-webkit-scrollbar{width:4px}
+.editor-scroll::-webkit-scrollbar-track{background:transparent}
+.editor-scroll::-webkit-scrollbar-thumb{background:var(--p);border-radius:2px}
+
+.section-header{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--s);margin:16px 0 8px;padding-bottom:4px;border-bottom:1px solid rgba(242,140,56,.2)}
+.section-header:first-child{margin-top:0}
+
+.field{margin-bottom:12px}
+.field label{display:block;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--dt);margin-bottom:5px;opacity:.75}
+.field input,.field textarea,.field select{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:7px;padding:8px 10px;color:#fff;font-size:13px;font-family:var(--font);transition:border-color .2s;resize:vertical}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--p);background:rgba(30,77,155,.12)}
+.field textarea{min-height:80px;line-height:1.5}
+.field small{display:block;font-size:10px;color:rgba(255,255,255,.35);margin-top:4px;line-height:1.4}
+
+/* Color pickers row */
+.color-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.color-item{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;min-width:60px}
+.color-item label{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--dt);text-align:center}
+.color-item input[type=color]{width:100%;height:36px;border:none;border-radius:6px;cursor:pointer;background:none;padding:2px}
+
+/* Stats table */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+
+/* List editor hint */
+.list-hint{font-size:10px;color:rgba(255,255,255,.3);font-style:italic;margin-bottom:4px}
+
+/* PREVIEW */
+.preview-panel{display:flex;flex-direction:column;overflow:hidden;background:#000}
+.preview-header{padding:8px 16px;background:rgba(0,0,0,.5);border-bottom:1px solid var(--gb);display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--dt);flex-shrink:0}
+.slide-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--s)}
+iframe{flex:1;border:none;width:100%;height:100%}
+
+/* EMPTY STATE */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:16px;padding:40px;text-align:center}
+.empty h2{font-size:22px;font-weight:700;color:var(--dt)}
+.empty p{font-size:13px;color:rgba(255,255,255,.4);line-height:1.7;max-width:280px}
+.empty .icon{font-size:48px;opacity:.3}
+
+/* DRAG HANDLE (list reorder hint) */
+.note-badge{display:inline-block;font-size:9px;padding:2px 6px;border-radius:4px;background:rgba(30,77,155,.3);color:var(--p);border:1px solid rgba(30,77,155,.3);margin-left:6px;letter-spacing:1px}
+
+/* Timeline editor */
+.tl-item{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px;margin-bottom:8px}
+.tl-item input{margin-bottom:6px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span>K</span>
+    EDITOR DE APRESENTAÇÃO
+  </div>
+  <div class="hbtns">
+    <button class="btn-outline" id="btnOpen">📂 Abrir Arquivo</button>
+    <button class="btn-save" id="btnSave" disabled>💾 Salvar Arquivo</button>
+    <button class="btn-primary" id="btnExport" disabled>⬇ Baixar Cópia</button>
+    <button class="btn-outline" id="btnFullPreview" disabled>⛶ Prévia Fullscreen</button>
+  </div>
+  <div id="statusMsg">Nenhum arquivo aberto</div>
+</header>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="slide-tabs" id="slideTabs">
+      <div style="font-size:10px;color:rgba(255,255,255,.3);padding:4px;width:100%">Abra um arquivo para editar</div>
+    </div>
+    <div class="editor-scroll" id="editorScroll">
+      <div class="empty">
+        <div class="icon">✏️</div>
+        <h2>Editor Kerigma</h2>
+        <p>Clique em <strong>"Abrir Arquivo"</strong> e selecione o <code>almolonga.html</code> para começar a editar.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PREVIEW -->
+  <div class="preview-panel">
+    <div class="preview-header">
+      <span class="slide-label" id="previewLabel">PRÉ-VISUALIZAÇÃO</span>
+      <span style="opacity:.4;font-size:10px;">As alterações aparecem automaticamente</span>
+    </div>
+    <div class="empty" id="previewEmpty" style="background:#020c1a">
+      <div class="icon">🖥</div>
+      <h2 style="color:rgba(255,255,255,.3)">Prévia da Apresentação</h2>
+      <p style="color:rgba(255,255,255,.25)">Aparecerá aqui após abrir o arquivo.</p>
+    </div>
+    <iframe id="previewFrame" style="display:none"></iframe>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   SLIDE CONFIGURATION — maps slide number to editable fields
+============================================================ */
+const slideNames = {
+  1:'Slide 1 — Título',2:'Slide 2 — Localização',3:'Slide 3 — Antes',
+  4:'Slide 4 — Início',5:'Slide 5 — Conversões',6:'Slide 6 — Transformação',
+  7:'Slide 7 — Agricultura',8:'Slide 8 — Igreja',9:'Slide 9 — Reconhecimento',
+  10:'Slide 10 — Lições',11:'Slide 11 — Conclusão'
+};
+
+// Field config: selector, label, type (text|textarea|list|timeline|html)
+const slideConfig = {
+  1:[
+    {s:'#s1t',l:'Tag / Categoria',t:'text'},
+    {s:'#s1h',l:'Título Principal',t:'text'},
+    {s:'#s1s',l:'Subtítulo (itálico)',t:'text'},
+    {s:'#s1p',l:'Descrição / Parágrafo',t:'textarea'},
+    {s:'#s1v',l:'Versículo do Rodapé',t:'text'},
+  ],
+  2:[
+    {s:'#s2tag',l:'Tag',t:'text'},
+    {s:'#s2h',l:'Título',t:'text'},
+    {s:'#s2sg .si:nth-child(1) .sv',l:'Stat 1 — Valor',t:'text'},
+    {s:'#s2sg .si:nth-child(1) .slab',l:'Stat 1 — Rótulo',t:'text'},
+    {s:'#s2sg .si:nth-child(2) .sv',l:'Stat 2 — Valor',t:'text'},
+    {s:'#s2sg .si:nth-child(2) .slab',l:'Stat 2 — Rótulo',t:'text'},
+    {s:'#s2sg .si:nth-child(3) .sv',l:'Stat 3 — Valor',t:'text'},
+    {s:'#s2sg .si:nth-child(3) .slab',l:'Stat 3 — Rótulo',t:'text'},
+    {s:'#s2sg .si:nth-child(4) .sv',l:'Stat 4 — Valor',t:'text'},
+    {s:'#s2sg .si:nth-child(4) .slab',l:'Stat 4 — Rótulo',t:'text'},
+  ],
+  3:[
+    {s:'#s3tag',l:'Tag',t:'text'},
+    {s:'#s3h',l:'Título',t:'text'},
+    {s:'#s3ul',l:'Itens da Lista (um por linha)',t:'list'},
+    {s:'#s3box .cnum',l:'Número Grande (Bares)',t:'text'},
+    {s:'#s3box div:nth-child(1)',l:'Legenda Acima do Número',t:'text'},
+    {s:'#s3msg',l:'Mensagem de Destaque',t:'textarea'},
+  ],
+  4:[
+    {s:'#s4tag',l:'Tag',t:'text'},
+    {s:'#s4h',l:'Título',t:'text'},
+    {s:'#s4ul',l:'Itens da Lista (um por linha)',t:'list'},
+    {s:'#s4tl',l:'Linha do Tempo',t:'timeline'},
+  ],
+  5:[
+    {s:'#s5tag',l:'Tag',t:'text'},
+    {s:'#s5h',l:'Título',t:'text'},
+    {s:'#s5ul',l:'Itens da Lista (um por linha)',t:'list'},
+    {s:'#s5box .cnum',l:'Número Grande (Conversões)',t:'text'},
+    {s:'#s5vc .vt',l:'Texto do Versículo',t:'textarea'},
+    {s:'#s5vc .vr',l:'Referência do Versículo',t:'text'},
+  ],
+  6:[
+    {s:'#s6tag',l:'Tag',t:'text'},
+    {s:'#s6h',l:'Título',t:'text'},
+    {s:'#s6cmp .cmpB',l:'Lista ANTES (um por linha)',t:'cmplist'},
+    {s:'#s6cmp .cmpA',l:'Lista DEPOIS (um por linha)',t:'cmplist'},
+  ],
+  7:[
+    {s:'#s7tag',l:'Tag',t:'text'},
+    {s:'#s7h',l:'Título',t:'text'},
+    {s:'#s7ul',l:'Itens da Lista (um por linha)',t:'list'},
+    {s:'#s7fc div:nth-child(2)',l:'Texto do Card de Destaque',t:'html'},
+  ],
+  8:[
+    {s:'#s8tag',l:'Tag',t:'text'},
+    {s:'#s8h',l:'Título',t:'text'},
+    {s:'#s8ul',l:'Itens da Lista (um por linha)',t:'list'},
+    {s:'#s8st div div:nth-child(2)',l:'Texto do Card Stat',t:'html'},
+  ],
+  9:[
+    {s:'#s9tag',l:'Tag',t:'text'},
+    {s:'#s9h',l:'Título',t:'text'},
+    {s:'#s9ul',l:'Itens da Lista (um por linha)',t:'list'},
+    {s:'#s9qt p',l:'Texto do Documentário',t:'textarea'},
+  ],
+  10:[
+    {s:'#s10tag',l:'Tag',t:'text'},
+    {s:'#s10h',l:'Título',t:'text'},
+    {s:'#s10pl',l:'Os 5 Pilares',t:'pillars'},
+  ],
+  11:[
+    {s:'#s11tag',l:'Tag',t:'text'},
+    {s:'#s11m',l:'Frase Principal',t:'textarea'},
+    {s:'#s11vc .vt',l:'Texto do Versículo',t:'textarea'},
+    {s:'#s11tg',l:'Frase Final (Rodapé)',t:'textarea'},
+    {s:'#s11br div div:nth-child(1)',l:'Nome da Organização',t:'text'},
+    {s:'#s11br div div:nth-child(2)',l:'Slogan da Organização',t:'text'},
+  ],
+};
+
+/* ============================================================
+   STATE
+============================================================ */
+let fileHandle = null;
+let doc = null;
+let currentSlide = 1;
+let isDirty = false;
+
+/* ============================================================
+   OPEN FILE
+============================================================ */
+document.getElementById('btnOpen').onclick = async () => {
+  try {
+    [fileHandle] = await window.showOpenFilePicker({
+      types:[{description:'HTML',accept:{'text/html':['.html']}}],
+      multiple:false
+    });
+    const file = await fileHandle.getFile();
+    const content = await file.text();
+    const parser = new DOMParser();
+    doc = parser.parseFromString(content,'text/html');
+    status('Arquivo aberto: '+file.name);
+    buildTabs();
+    loadSlide(1);
+    updatePreview();
+    document.getElementById('btnSave').disabled=false;
+    document.getElementById('btnExport').disabled=false;
+    document.getElementById('btnFullPreview').disabled=false;
+    document.getElementById('previewEmpty').style.display='none';
+    document.getElementById('previewFrame').style.display='block';
+  } catch(e){
+    if(e.name!=='AbortError') status('Erro ao abrir arquivo.');
+  }
+};
+
+/* ============================================================
+   SAVE FILE
+============================================================ */
+document.getElementById('btnSave').onclick = async () => {
+  if(!fileHandle||!doc) return;
+  try {
+    const html = '<!DOCTYPE html>\n'+doc.documentElement.outerHTML;
+    const writable = await fileHandle.createWritable();
+    await writable.write(html);
+    await writable.close();
+    isDirty=false;
+    status('✅ Salvo com sucesso!');
+    setTimeout(()=>status('Arquivo: '+fileHandle.name),2500);
+  } catch(e){ status('❌ Erro ao salvar.'); }
+};
+
+/* ============================================================
+   EXPORT (download copy)
+============================================================ */
+document.getElementById('btnExport').onclick = () => {
+  if(!doc) return;
+  const html = '<!DOCTYPE html>\n'+doc.documentElement.outerHTML;
+  const blob = new Blob([html],{type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'almolonga-editado.html';
+  a.click();
+  status('📥 Download iniciado!');
+};
+
+/* ============================================================
+   FULL PREVIEW
+============================================================ */
+document.getElementById('btnFullPreview').onclick = () => {
+  if(!doc) return;
+  const html = '<!DOCTYPE html>\n'+doc.documentElement.outerHTML;
+  const blob = new Blob([html],{type:'text/html'});
+  window.open(URL.createObjectURL(blob),'_blank');
+};
+
+/* ============================================================
+   BUILD TABS
+============================================================ */
+function buildTabs(){
+  const tabs = document.getElementById('slideTabs');
+  tabs.innerHTML='';
+  for(let i=1;i<=11;i++){
+    const btn = document.createElement('button');
+    btn.className='stab'+(i===1?' active':'');
+    btn.textContent=i;
+    btn.title=slideNames[i];
+    btn.onclick=()=>{ loadSlide(i); document.querySelectorAll('.stab').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); };
+    tabs.appendChild(btn);
+  }
+  // Color theme tab
+  const ct = document.createElement('button');
+  ct.className='stab';ct.textContent='🎨';ct.title='Tema de Cores';
+  ct.onclick=()=>{ loadColors(); document.querySelectorAll('.stab').forEach(b=>b.classList.remove('active')); ct.classList.add('active'); };
+  tabs.appendChild(ct);
+
+  // Logo tab
+  const lt = document.createElement('button');
+  lt.className='stab';lt.textContent='K';lt.title='Logo Kerigma';
+  lt.onclick=()=>{ loadLogo(); document.querySelectorAll('.stab').forEach(b=>b.classList.remove('active')); lt.classList.add('active'); };
+  tabs.appendChild(lt);
+}
+
+/* ============================================================
+   LOAD SLIDE EDITOR
+============================================================ */
+function loadSlide(n){
+  currentSlide=n;
+  const scroll = document.getElementById('editorScroll');
+  scroll.innerHTML='';
+  document.getElementById('previewLabel').textContent=slideNames[n]||'Slide '+n;
+
+  const fields = slideConfig[n]||[];
+  if(!fields.length){ scroll.innerHTML='<div class="empty"><p>Sem campos editáveis neste slide.</p></div>'; return; }
+
+  // Slide name header
+  const h = document.createElement('div');
+  h.className='section-header';
+  h.textContent=slideNames[n];
+  scroll.appendChild(h);
+
+  fields.forEach(f=>{
+    if(!doc) return;
+    buildField(scroll, f);
+  });
+}
+
+/* ============================================================
+   BUILD FIELD
+============================================================ */
+function buildField(container, f){
+  const el = doc.querySelector(f.s);
+
+  if(f.t==='list'){
+    // Bullet list
+    const wrap = mkField(f.l);
+    const hint = document.createElement('div');
+    hint.className='list-hint';hint.textContent='Cada linha = um item. Use **texto** para negrito.';
+    const ta = document.createElement('textarea');
+    ta.style.minHeight='120px';
+    if(el){
+      ta.value = Array.from(el.querySelectorAll('li')).map(li=>innerToMd(li.innerHTML)).join('\n');
+      ta.oninput=()=>{ setListFromMd(el,ta.value,'cl'); updatePreview(); markDirty(); };
+    }
+    wrap.appendChild(hint);wrap.appendChild(ta);
+    container.appendChild(wrap);
+    return;
+  }
+
+  if(f.t==='cmplist'){
+    const side = f.l.includes('ANTES')?'before':'after';
+    const wrap = mkField(f.l);
+    const hint = document.createElement('div');
+    hint.className='list-hint';hint.textContent='Cada linha = um item.';
+    const ta = document.createElement('textarea');
+    ta.style.minHeight='100px';
+    if(el){
+      const ul = el.querySelector('.cmpUl');
+      if(ul) ta.value = Array.from(ul.querySelectorAll('li')).map(li=>li.textContent).join('\n');
+      ta.oninput=()=>{
+        if(ul){ ul.innerHTML=ta.value.split('\n').filter(l=>l.trim()).map(l=>`<li>${l}</li>`).join(''); updatePreview(); markDirty(); }
+      };
+    }
+    wrap.appendChild(hint);wrap.appendChild(ta);
+    container.appendChild(wrap);
+    return;
+  }
+
+  if(f.t==='timeline'){
+    const wrap = mkField(f.l);
+    const hint=document.createElement('div');hint.className='list-hint';
+    hint.textContent='Edite cada etapa da linha do tempo:';
+    wrap.appendChild(hint);
+    if(el){
+      const items = el.querySelectorAll('.tli');
+      items.forEach((item,i)=>{
+        const box=document.createElement('div');box.className='tl-item';
+        const h4=item.querySelector('h4'),p=item.querySelector('p');
+        const inp1=document.createElement('input');
+        inp1.placeholder='Título';inp1.value=h4?h4.textContent:'';
+        inp1.style.marginBottom='6px';
+        inp1.oninput=()=>{if(h4)h4.textContent=inp1.value;updatePreview();markDirty();};
+        const inp2=document.createElement('input');
+        inp2.placeholder='Descrição';inp2.value=p?p.textContent:'';
+        inp2.oninput=()=>{if(p)p.textContent=inp2.value;updatePreview();markDirty();};
+        box.appendChild(inp1);box.appendChild(inp2);wrap.appendChild(box);
+      });
+    }
+    container.appendChild(wrap);
+    return;
+  }
+
+  if(f.t==='pillars'){
+    const wrap = mkField(f.l);
+    const hint=document.createElement('div');hint.className='list-hint';
+    hint.textContent='Edite cada pilar (texto apenas):';
+    wrap.appendChild(hint);
+    if(el){
+      const pillars=el.querySelectorAll('.plr');
+      pillars.forEach((plr,i)=>{
+        const txt=plr.querySelector('.plt');
+        const box=document.createElement('div');box.className='tl-item';
+        const lbl=document.createElement('label');lbl.style.cssText='display:block;font-size:10px;color:var(--s);margin-bottom:4px;';lbl.textContent='Pilar '+(i+1);
+        const ta=document.createElement('textarea');ta.style.minHeight='56px';
+        ta.value=txt?innerToMd(txt.innerHTML):'';
+        ta.oninput=()=>{if(txt){txt.innerHTML=mdToInner(ta.value);updatePreview();markDirty();}};
+        box.appendChild(lbl);box.appendChild(ta);wrap.appendChild(box);
+      });
+    }
+    container.appendChild(wrap);
+    return;
+  }
+
+  if(f.t==='html'){
+    const wrap=mkField(f.l);
+    const hint=document.createElement('div');hint.className='list-hint';hint.textContent='HTML básico permitido (use <strong> para negrito, <br> para quebra)';
+    const ta=document.createElement('textarea');ta.style.minHeight='72px';
+    if(el) ta.value=el.innerHTML||'';
+    ta.oninput=()=>{if(el){el.innerHTML=ta.value;updatePreview();markDirty();}};
+    wrap.appendChild(hint);wrap.appendChild(ta);
+    container.appendChild(wrap);
+    return;
+  }
+
+  if(f.t==='textarea'){
+    const wrap=mkField(f.l);
+    const ta=document.createElement('textarea');ta.style.minHeight='72px';
+    if(el) ta.value=innerToMd(el.innerHTML)||el.textContent||'';
+    ta.oninput=()=>{if(el){el.innerHTML=mdToInner(ta.value);updatePreview();markDirty();}};
+    wrap.appendChild(ta);container.appendChild(wrap);
+    return;
+  }
+
+  // Default: text input
+  const wrap=mkField(f.l);
+  const inp=document.createElement('input');inp.type='text';
+  if(el) inp.value=el.textContent||'';
+  inp.oninput=()=>{if(el){el.textContent=inp.value;updatePreview();markDirty();}};
+  wrap.appendChild(inp);container.appendChild(wrap);
+}
+
+/* ============================================================
+   COLOR THEME EDITOR
+============================================================ */
+function loadColors(){
+  const scroll=document.getElementById('editorScroll');
+  scroll.innerHTML='';
+  document.getElementById('previewLabel').textContent='TEMA DE CORES';
+
+  const h=document.createElement('div');h.className='section-header';h.textContent='Identidade Visual — Cores';
+  scroll.appendChild(h);
+
+  const colors=[
+    {varName:'--p',label:'Cor Primária (Azul)',css:'--p'},
+    {varName:'--s',label:'Cor Secundária (Laranja)',css:'--s'},
+    {varName:'--bg',label:'Cor de Fundo',css:'--bg'},
+  ];
+
+  if(!doc){scroll.innerHTML='<div class="empty"><p>Abra um arquivo primeiro.</p></div>';return;}
+
+  // Get current CSS values from :root
+  const style = doc.querySelector('style');
+  const styleText = style?style.textContent:'';
+
+  colors.forEach(c=>{
+    const match = styleText.match(new RegExp(c.css+':\\s*(#[0-9a-fA-F]{3,8}|rgba?\\([^)]+\\))'));
+    const currentVal = match?match[1]:'#ffffff';
+    const wrap=mkField(c.label);
+    const row=document.createElement('div');row.style.display='flex';row.style.gap='8px';row.style.alignItems='center';
+    const picker=document.createElement('input');picker.type='color';
+    picker.style.cssText='width:56px;height:36px;border:none;border-radius:6px;cursor:pointer;';
+    try{picker.value=currentVal.startsWith('#')?currentVal:'#1e4d9b';}catch(e){}
+    const txt=document.createElement('input');txt.type='text';txt.style.flex='1';
+    txt.value=currentVal;
+    picker.oninput=()=>{
+      txt.value=picker.value;
+      replaceColorInStyle(style,c.css,picker.value);
+      updatePreview();markDirty();
+    };
+    txt.oninput=()=>{
+      try{picker.value=txt.value;replaceColorInStyle(style,c.css,txt.value);updatePreview();markDirty();}catch(e){}
+    };
+    row.appendChild(picker);row.appendChild(txt);
+    wrap.appendChild(row);scroll.appendChild(wrap);
+  });
+
+  // Separator
+  const h2=document.createElement('div');h2.className='section-header';h2.textContent='Glow & Gradientes';
+  scroll.appendChild(h2);
+  const note=document.createElement('div');
+  note.style.cssText='font-size:11px;color:rgba(255,255,255,.35);line-height:1.7;padding:8px;background:rgba(255,255,255,.04);border-radius:7px;border:1px solid var(--gb);';
+  note.textContent='Os glows e gradientes são calculados automaticamente com base nas cores primária e secundária acima.';
+  scroll.appendChild(note);
+}
+
+function replaceColorInStyle(styleEl,varName,newVal){
+  if(!styleEl) return;
+  styleEl.textContent=styleEl.textContent.replace(
+    new RegExp('('+varName+':\\s*)(#[0-9a-fA-F]{3,8}|rgba?\\([^)]+\\))'),
+    '$1'+newVal
+  );
+}
+
+/* ============================================================
+   LOGO EDITOR
+============================================================ */
+function loadLogo(){
+  const scroll=document.getElementById('editorScroll');
+  scroll.innerHTML='';
+  document.getElementById('previewLabel').textContent='LOGO KERIGMA';
+
+  if(!doc){scroll.innerHTML='<div class="empty"><p>Abra um arquivo primeiro.</p></div>';return;}
+
+  const h=document.createElement('div');h.className='section-header';h.textContent='Logo & Marca';
+  scroll.appendChild(h);
+
+  const logoIcon=doc.querySelector('.klg-icon');
+  const logoTxt=doc.querySelector('.klg-txt');
+  const s11name=doc.querySelector('#s11br div div:nth-child(1)');
+  const s11slogan=doc.querySelector('#s11br div div:nth-child(2)');
+
+  buildSimpleField(scroll,'Letra do Ícone (logo canto)',logoIcon,'text');
+  buildSimpleField(scroll,'Nome da Marca (lado do ícone)',logoTxt,'text');
+  buildSimpleField(scroll,'Nome no Slide Final',s11name,'text');
+  buildSimpleField(scroll,'Slogan no Slide Final',s11slogan,'text');
+
+  const h2=document.createElement('div');h2.className='section-header';h2.textContent='Slide 1 — Rodapé';
+  scroll.appendChild(h2);
+  buildSimpleField(scroll,'Versículo do Rodapé',doc.querySelector('#s1v'),'text');
+}
+
+function buildSimpleField(container,label,el,type){
+  if(!el) return;
+  const wrap=mkField(label);
+  const inp=document.createElement('input');inp.type=type;
+  inp.value=el.textContent||'';
+  inp.oninput=()=>{el.textContent=inp.value;updatePreview();markDirty();};
+  wrap.appendChild(inp);container.appendChild(wrap);
+}
+
+/* ============================================================
+   HELPERS
+============================================================ */
+function mkField(label){
+  const div=document.createElement('div');div.className='field';
+  const lbl=document.createElement('label');lbl.textContent=label;
+  div.appendChild(lbl);return div;
+}
+
+function innerToMd(html){
+  return (html||'').replace(/<strong>/gi,'**').replace(/<\/strong>/gi,'**').replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]+>/g,'').trim();
+}
+
+function mdToInner(text){
+  return text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+}
+
+function setListFromMd(ul,text,cls){
+  const lines=text.split('\n').filter(l=>l.trim());
+  ul.innerHTML=lines.map(l=>`<li>${mdToInner(l)}</li>`).join('');
+}
+
+/* ============================================================
+   PREVIEW
+============================================================ */
+let previewTimeout=null;
+function updatePreview(){
+  clearTimeout(previewTimeout);
+  previewTimeout=setTimeout(()=>{
+    if(!doc) return;
+    const html='<!DOCTYPE html>\n'+doc.documentElement.outerHTML;
+    const blob=new Blob([html],{type:'text/html'});
+    const url=URL.createObjectURL(blob);
+    const frame=document.getElementById('previewFrame');
+    const old=frame.src;
+    frame.src=url;
+    if(old&&old.startsWith('blob:')) URL.revokeObjectURL(old);
+  },280);
+}
+
+function markDirty(){
+  isDirty=true;
+  status('⚠ Alterações não salvas — clique em Salvar');
+}
+
+function status(msg){
+  document.getElementById('statusMsg').textContent=msg;
+}
+
+/* ============================================================
+   KEYBOARD SHORTCUT: Ctrl+S to save
+============================================================ */
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==='s'){
+    e.preventDefault();
+    document.getElementById('btnSave').click();
+  }
+});
+
+/* ============================================================
+   WARN BEFORE CLOSING WITH UNSAVED CHANGES
+============================================================ */
+window.addEventListener('beforeunload',e=>{
+  if(isDirty){e.preventDefault();e.returnValue='';}
+});
+</script>
+</body>
+</html>
