@@ -195,8 +195,26 @@ ul.cl li strong{color:#fff;}
 .sha{width:18px;height:18px;border-right:2px solid var(--dt);border-bottom:2px solid var(--dt);transform:rotate(45deg);animation:shb 2s ease-in-out infinite;}
 @keyframes shb{0%,100%{transform:rotate(45deg) translateY(0);opacity:.4}50%{transform:rotate(45deg) translateY(6px);opacity:1}}
 
+/* IMAGE LAYER for slides */
+.img-layer{position:absolute;inset:0;background-size:cover;background-position:center;z-index:1;opacity:.22;pointer-events:none;transition:opacity .8s;}
+
+/* GALLERY SLIDES */
+@keyframes kbZoom{0%{transform:scale(1) translateX(0)}100%{transform:scale(1.1) translateX(-1%)}}
+@keyframes kbZoom2{0%{transform:scale(1) translateX(0)}100%{transform:scale(1.12) translateX(1%)}}
+.kb-img{position:absolute;inset:0;background-size:cover;background-position:center;z-index:1;animation:kbZoom 14s ease-out forwards;}
+.kb-img.alt{animation-name:kbZoom2;}
+.gal-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.92) 0%,rgba(0,0,0,.55) 38%,rgba(0,0,0,.2) 100%);z-index:2;}
+.gal-top{position:absolute;top:0;left:0;right:0;height:120px;background:linear-gradient(to bottom,rgba(4,21,45,.7) 0%,transparent 100%);z-index:2;}
+.gal-caption{position:absolute;bottom:90px;left:0;right:0;text-align:center;z-index:10;padding:0 80px;}
+.gal-quote{font-family:var(--fD);font-size:clamp(20px,3.2vw,42px);color:#fff;line-height:1.45;font-style:italic;text-shadow:0 2px 24px rgba(0,0,0,.9),0 0 60px rgba(0,0,0,.6);opacity:0;transform:translateY(24px);transition:opacity .8s ease,transform .8s ease;}
+.gal-quote.show{opacity:1;transform:translateY(0);}
+.gal-sub{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--s);margin-top:16px;opacity:0;transition:opacity .8s ease .4s;}
+.gal-sub.show{opacity:1;}
+.gal-num{position:absolute;top:26px;left:50%;transform:translateX(-50%);font-size:9px;letter-spacing:5px;text-transform:uppercase;color:rgba(255,255,255,.3);z-index:10;}
+.gal-prog{position:absolute;bottom:0;left:0;height:2px;background:linear-gradient(90deg,var(--p),var(--s));z-index:20;width:0;}
+
 /* RESPONSIVE */
-@media(max-width:768px){.tc{grid-template-columns:1fr;gap:18px;padding:0 16px;}.sc{padding:16px;}.plrs{flex-direction:column;}.cmp{grid-template-columns:1fr;}#dots{display:none;}.sg{grid-template-columns:1fr;}.ir{flex-wrap:wrap;}}
+@media(max-width:768px){.tc{grid-template-columns:1fr;gap:18px;padding:0 16px;}.sc{padding:16px;}.plrs{flex-direction:column;}.cmp{grid-template-columns:1fr;}#dots{display:none;}.sg{grid-template-columns:1fr;}.ir{flex-wrap:wrap;}.gal-caption{padding:0 24px;}.gal-quote{font-size:clamp(16px,4vw,24px);}}
 </style>
 </head>
 <body>
@@ -278,6 +296,7 @@ ul.cl li strong{color:#fff;}
 <!-- SLIDE 3 -->
 <div class="slide" id="s3">
   <div class="bg bgDark"><div class="grid" style="opacity:.25;"></div><div class="orb" style="background:rgba(160,20,20,.18);width:420px;height:420px;top:15%;left:5%;filter:blur(100px);"></div></div>
+  <div class="img-layer" style="background-image:url('IMAGEM 2.jpeg');opacity:.18;"></div>
   <div class="slbl">Slide 03 — Antes</div>
   <div class="tc">
     <div>
@@ -307,6 +326,7 @@ ul.cl li strong{color:#fff;}
 <!-- SLIDE 4 -->
 <div class="slide" id="s4">
   <div class="bg bg1"><div class="grid"></div><div class="orb orbB" style="bottom:8%;right:3%;"></div><div class="orb orbO" style="top:3%;left:18%;opacity:.45;"></div></div>
+  <div class="img-layer" style="background-image:url('IMAGEM3.jpeg');opacity:.15;filter:grayscale(40%);"></div>
   <div class="slbl">Slide 04 — O Início</div>
   <div class="tc">
     <div>
@@ -337,6 +357,7 @@ ul.cl li strong{color:#fff;}
 <!-- SLIDE 5 -->
 <div class="slide" id="s5">
   <div class="bg bg2"><div class="grid"></div><div class="orb orbO" style="top:0;right:18%;"></div><div class="orb orbB" style="bottom:0;left:3%;"></div></div>
+  <div class="img-layer" style="background-image:url('IMAGEM4.jpeg');opacity:.2;background-position:top center;"></div>
   <div class="slbl">Slide 05 — Arrependimento</div>
   <div class="tc">
     <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;">
@@ -392,6 +413,7 @@ ul.cl li strong{color:#fff;}
 <!-- SLIDE 7 -->
 <div class="slide" id="s7">
   <div class="bg bgGreen"><div class="grid"></div><div class="orb" style="background:rgba(30,155,77,.22);width:500px;height:500px;bottom:-80px;right:-40px;filter:blur(100px);"></div><div class="orb orbB" style="top:0;left:0;"></div></div>
+  <div class="img-layer" style="background-image:url('IMAGEM 6.jpeg');opacity:.2;background-position:center 30%;"></div>
   <div class="slbl">Slide 07 — Agricultura</div>
   <div class="tc">
     <div>
@@ -508,6 +530,7 @@ ul.cl li strong{color:#fff;}
 <!-- SLIDE 10 -->
 <div class="slide" id="s10">
   <div class="bg bg2"><div class="grid"></div><div class="orb orbB" style="top:0;left:28%;"></div></div>
+  <div class="img-layer" style="background-image:url('IMAGEM9.jpeg');opacity:.18;background-position:center 40%;"></div>
   <div class="slbl">Slide 10 — Lições</div>
   <div style="position:relative;z-index:10;width:100%;max-width:1100px;padding:0 36px;">
     <div style="text-align:center;margin-bottom:28px;">
@@ -546,6 +569,117 @@ ul.cl li strong{color:#fff;}
       </div>
     </div>
   </div>
+</div>
+
+<!-- =================== GALLERY SLIDES (12–19) =================== -->
+
+<!-- SLIDE 12 -->
+<div class="slide" id="s12">
+  <div class="kb-img" style="background-image:url('IMAGENS PARAULTIMOS SLIDE (1).jpeg');background-position:center 35%;"></div>
+  <div class="gal-overlay"></div><div class="gal-top"></div>
+  <div class="gal-num">Galeria · Almolonga · Documentário</div>
+  <div class="gal-caption">
+    <div class="gal-quote" id="gq12">"É um espetáculo maravilhoso ir e ver o efeito do evangelho"</div>
+    <div class="gal-sub" id="gs12">Documentário Transformação — George Otis Jr.</div>
+  </div>
+  <div class="gal-prog" id="gp12"></div>
+  <div class="slbl">Slide 12 — Galeria</div>
+</div>
+
+<!-- SLIDE 13 -->
+<div class="slide" id="s13">
+  <div class="kb-img alt" style="background-image:url('IMAGENS PARAULTIMOS SLIDE (2).jpeg');background-position:center 30%;"></div>
+  <div class="gal-overlay"></div><div class="gal-top"></div>
+  <div class="gal-num">Galeria · Almolonga · Documentário</div>
+  <div class="gal-caption">
+    <div class="gal-quote" id="gq13">"A alegria que antes não existia agora transborda nos rostos do povo"</div>
+    <div class="gal-sub" id="gs13">Efeito do Evangelho na Comunidade</div>
+  </div>
+  <div class="gal-prog" id="gp13"></div>
+  <div class="slbl">Slide 13 — Galeria</div>
+</div>
+
+<!-- SLIDE 14 -->
+<div class="slide" id="s14">
+  <div class="kb-img" style="background-image:url('IMAGENS PARAULTIMOS SLIDE (3).jpeg');background-position:center 40%;"></div>
+  <div class="gal-overlay"></div><div class="gal-top"></div>
+  <div class="gal-num">Galeria · Almolonga · Documentário</div>
+  <div class="gal-caption">
+    <div class="gal-quote" id="gq14">"Revela o impacto da transformação realizada pelo avivamento social"</div>
+    <div class="gal-sub" id="gs14">Calle de la Cruz · Almolonga · Guatemala</div>
+  </div>
+  <div class="gal-prog" id="gp14"></div>
+  <div class="slbl">Slide 14 — Galeria</div>
+</div>
+
+<!-- SLIDE 15 -->
+<div class="slide" id="s15">
+  <div class="kb-img alt" style="background-image:url('IMAGENS PARAULTIMOS SLIDE (4).jpeg');background-position:center 35%;"></div>
+  <div class="gal-overlay"></div><div class="gal-top"></div>
+  <div class="gal-num">Galeria · Almolonga · Documentário</div>
+  <div class="gal-caption">
+    <div class="gal-quote" id="gq15">"Alcoolismo, famílias destruídas... e agora temos esperança e vida nova"</div>
+    <div class="gal-sub" id="gs15">Testemunho de Restauração Familiar</div>
+  </div>
+  <div class="gal-prog" id="gp15"></div>
+  <div class="slbl">Slide 15 — Galeria</div>
+</div>
+
+<!-- SLIDE 16 -->
+<div class="slide" id="s16">
+  <div class="kb-img" style="background-image:url('IMAGENS PARAULTIMOS SLIDE (5).jpeg');background-position:center 40%;"></div>
+  <div class="gal-overlay"></div><div class="gal-top"></div>
+  <div class="gal-num">Galeria · Almolonga · Documentário</div>
+  <div class="gal-caption">
+    <div class="gal-quote" id="gq16">"E agora são necessários caminhões inteiros para transportar a colheita"</div>
+    <div class="gal-sub" id="gs16">Prosperidade Agrícola · Bênção da Terra</div>
+  </div>
+  <div class="gal-prog" id="gp16"></div>
+  <div class="slbl">Slide 16 — Galeria</div>
+</div>
+
+<!-- SLIDE 17 -->
+<div class="slide" id="s17">
+  <div class="kb-img alt" style="background-image:url('IMAGENS PARAULTIMOS SLIDE (6).jpeg');background-position:center 35%;"></div>
+  <div class="gal-overlay"></div><div class="gal-top"></div>
+  <div class="gal-num">Galeria · Almolonga · Documentário</div>
+  <div class="gal-caption">
+    <div class="gal-quote" id="gq17">"Você pode ver um paralelo entre a fé do povo e a melhoria do solo"</div>
+    <div class="gal-sub" id="gs17">Fé e Fertilidade · O Milagre Visível</div>
+  </div>
+  <div class="gal-prog" id="gp17"></div>
+  <div class="slbl">Slide 17 — Galeria</div>
+</div>
+
+<!-- SLIDE 18 -->
+<div class="slide" id="s18">
+  <div class="kb-img" style="background-image:url('IMAGENS PARAULTIMOS SLIDE (7).jpeg');background-position:center 30%;"></div>
+  <div class="gal-overlay"></div><div class="gal-top"></div>
+  <div class="gal-num">Galeria · Almolonga · Documentário</div>
+  <div class="gal-caption">
+    <div class="gal-quote" id="gq18">"Famílias restauradas, crianças com futuro, amor onde havia dor"</div>
+    <div class="gal-sub" id="gs18">Nova Geração · Almolonga Transformada</div>
+  </div>
+  <div class="gal-prog" id="gp18"></div>
+  <div class="slbl">Slide 18 — Galeria</div>
+</div>
+
+<!-- SLIDE 19 -->
+<div class="slide" id="s19">
+  <div class="kb-img alt" style="background-image:url('IMAGENS PARAULTIMOS SLIDE (8).jpeg');background-position:center 35%;"></div>
+  <div class="gal-overlay"></div><div class="gal-top"></div>
+  <div class="gal-num">Galeria · Almolonga · Documentário</div>
+  <div class="gal-caption">
+    <div class="gal-quote" id="gq19">"Você tem que ver para crer. Deus transformou esta cidade."</div>
+    <div class="gal-sub" id="gs19">Almolonga · Guatemala · Século XXI</div>
+  </div>
+  <div class="gal-prog" id="gp19"></div>
+  <!-- Final Kerigma branding -->
+  <div style="position:absolute;bottom:36px;right:36px;z-index:20;display:flex;align-items:center;gap:10px;opacity:.6;">
+    <div style="width:26px;height:26px;background:linear-gradient(135deg,var(--p),var(--s));border-radius:5px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;">K</div>
+    <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--dt);">Kerigma</div>
+  </div>
+  <div class="slbl">Slide 19 — Fim</div>
 </div>
 
 </div><!-- /sWrap -->
@@ -592,7 +726,7 @@ ul.cl li strong{color:#fff;}
 })();
 
 /* ============================================================ SLIDE SYSTEM */
-let cur=1,tot=11,busy=false;
+let cur=1,tot=19,busy=false;
 
 // Build dots
 (function(){
@@ -651,6 +785,16 @@ function cnt(el,target,dur=1400,sfx=''){
 
 /* ============================================================ RESET HELPERS */
 function resetSlide(n){
+  // Gallery slides: hide caption on reset
+  if(n>=12&&n<=19){
+    const q=document.getElementById('gq'+n);
+    const s=document.getElementById('gs'+n);
+    const p=document.getElementById('gp'+n);
+    if(q)q.classList.remove('show');
+    if(s)s.classList.remove('show');
+    if(p){p.style.transition='none';p.style.width='0';}
+    return;
+  }
   const sets={
     2:['#s2tag','#s2h','#s2sg .si','#s2map'],
     3:['#s3tag','#s3h','#s3ul li','#s3box','#s3msg'],
@@ -671,6 +815,7 @@ function resetSlide(n){
 
 /* ============================================================ ANIMATIONS */
 function anim(n){
+  if(n>=12&&n<=19){aGal(n);return;}
   ({1:a1,2:a2,3:a3,4:a4,5:a5,6:a6,7:a7,8:a8,9:a9,10:a10,11:a11}[n]||function(){})();
 }
 
@@ -767,6 +912,29 @@ function a11(){
   gsap.to('#s11vc',{opacity:1,y:0,duration:.75,delay:.7});
   gsap.to('#s11tg',{opacity:1,y:0,duration:.6,delay:1.1});
   gsap.to('#s11br',{opacity:1,duration:.6,delay:1.5});
+}
+
+/* ============================================================ GALLERY ANIMATION */
+function aGal(n){
+  const slide=document.getElementById('s'+n);
+  if(!slide) return;
+
+  // Restart Ken Burns
+  const kb=slide.querySelector('.kb-img');
+  if(kb){kb.style.animation='none';kb.offsetHeight;kb.style.animation='';}
+
+  // Animate quote
+  const q=document.getElementById('gq'+n);
+  const s=document.getElementById('gs'+n);
+  if(q){q.classList.remove('show');void q.offsetWidth;setTimeout(()=>q.classList.add('show'),600);}
+  if(s){s.classList.remove('show');void s.offsetWidth;setTimeout(()=>s.classList.add('show'),900);}
+
+  // Progress bar
+  const prog=document.getElementById('gp'+n);
+  if(prog){
+    prog.style.transition='none';prog.style.width='0';
+    setTimeout(()=>{prog.style.transition='width 6s linear';prog.style.width='100%';},100);
+  }
 }
 
 /* ============================================================ INIT */
